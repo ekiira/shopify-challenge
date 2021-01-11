@@ -1,38 +1,80 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.appWrapper {
+  min-height: 100%;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  display: flex;
 }
 
-.App-link {
-  color: #61dafb;
+.logo {
+  display: flex;
+  justify-content: center;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.logo-text {
+  position: relative;
+}
+
+.logo-img {
+  font-size: 40px;
+  color: #007f60;
+  font-weight: 700;
+}
+
+.search {
+  padding: 0;
+  height: 30px;
+  border-width: 0;
+  display: block;
+  width: 100%;
+}
+
+.search:focus {
+  border: 0;
+  outline: none !important;
+}
+
+.searchIconWrapper {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+}
+
+.searchIcon {
+  width: 25px;
+}
+
+.list-group-item {
+  border: none;
+}
+
+.nom-btn {
+  background-color: #007f60;
+  border: 1px solid #027054;
+  width: 100%;
+  border-radius: 4px;
+  padding: 5px;
+  color: #ffffff;
+}
+
+.nom-btn:hover,
+.nom-btn:active,
+.nom-btn:focus {
+  background-color: #006e52;
+  outline: #006e52;
+}
+
+.rem-btn {
+  background-color: #dc3545;
+  border: 1px solid #dc3545;
+  width: 100%;
+  border-radius: 4px;
+  padding: 5px;
+  color: #ffffff;
+}
+
+.rem-btn:hover,
+.rem-btn:active,
+.rem-btn:focus {
+  background-color: #bd2130;
+  border-color: #b21f2d;
+  outline: #b21f2d;
 }
