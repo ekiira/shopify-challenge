@@ -16,6 +16,10 @@ const App = () => {
   const [movies, setMovies] = useState(null);
   const [error, setError] = useState(false);
   const [nominations, setNominations] = useState([]);
+  const [check, setCheck] = useState({
+    isNominated: false,
+    buttons: [],
+  });
 
   useEffect(() => {
     const getMovies = async () => {
@@ -39,6 +43,11 @@ const App = () => {
 
   const onNominate = (movie, id) => {
     setNominations([...nominations, movie]);
+    setCheck({
+      ...check,
+      isNominated: true,
+      buttons: [...check.buttons, movie.imdbID],
+    });
   };
 
   return (
@@ -88,12 +97,31 @@ const App = () => {
                             <p> {movie.Title}</p>
                           </Col>
                           <Col xs={12} lg={3}>
-                            <button
-                              className="nom-btn"
-                              onClick={() => onNominate(movie, movie.imdbID)}
-                            >
-                              Nominate
-                            </button>
+                            {check.isNominated ? (
+                              check.buttons.filter(
+                                (btn) => btn === movie.imdbID
+                              ).length === 1 ? (
+                                <button className="nom-btn-disabled">
+                                  Nominated
+                                </button>
+                              ) : (
+                                <button
+                                  className="nom-btn"
+                                  onClick={() =>
+                                    onNominate(movie, movie.imdbID)
+                                  }
+                                >
+                                  Nominate
+                                </button>
+                              )
+                            ) : (
+                              <button
+                                className="nom-btn"
+                                onClick={() => onNominate(movie, movie.imdbID)}
+                              >
+                                Nominate
+                              </button>
+                            )}
                           </Col>
                         </Row>
                       </ListGroup.Item>
