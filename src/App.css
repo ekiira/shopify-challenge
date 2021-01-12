@@ -55,11 +55,27 @@
   color: #ffffff;
 }
 
+.nom-btn-disabled {
+  background-color: gray;
+  border: 1px solid gray;
+  width: 100%;
+  border-radius: 4px;
+  padding: 5px;
+  color: #ffffff;
+}
+
 .nom-btn:hover,
 .nom-btn:active,
 .nom-btn:focus {
   background-color: #006e52;
   outline: #006e52;
+}
+
+.nom-btn-disabled:hover,
+.nom-btn-disabled:active,
+.nom-btn-disabled:focus {
+  background-color: gray;
+  outline: gray;
 }
 
 .rem-btn {

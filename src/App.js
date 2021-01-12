@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import "./App.css";
 
 import search from "./assets/search.svg";
@@ -10,25 +11,36 @@ import FormControl from "react-bootstrap/FormControl";
 import ListGroup from "react-bootstrap/ListGroup";
 
 const App = () => {
-  const result = "ddd";
+  const key = "26a7e327";
+  const [title, setTitle] = useState("");
+  const [movies, setMovies] = useState(null);
+  const [error, setError] = useState(false);
+  const [nominations, setNominations] = useState([]);
 
-  const list = [
-    "Lorem ipsum is placeholder text commonly used in the graphic, print",
-    "two",
-    "three",
-    "Lorem ipsum is placeholdeublishing industries for previewing layouts and visual mockups.",
+  useEffect(() => {
+    const getMovies = async () => {
+      if (title) {
+        const response = await fetch(
+          `https://www.omdbapi.com/?apikey=${key}&s=${title.trim()}`
+        );
+        const data = await response.json();
+        if (data.Response === "True") {
+          setMovies(data.Search);
+          setError(false);
+        } else {
+          setError(true);
+          setMovies([]);
+        }
+      }
+    };
 
-    "four",
-    "Lorem ipsum is placeholdeublishing industries for previewing layouts and visual mockups.",
-  ];
+    getMovies();
+  }, [title]);
 
-  const nom = [
-    "Lorem ipsum is placeholder text commonly used in the graphic, print",
-    "two",
-    "three",
-    "Lorem ipsum is placeholdeublishing industries for previewing layouts and visual mockups.",
-    "four",
-  ];
+  const onNominate = (movie, id) => {
+    setNominations([...nominations, movie]);
+  };
+
   return (
     <div className="appWrapper">
       <Container className="">
@@ -51,7 +63,10 @@ const App = () => {
                       />
                     </InputGroup.Text>
                   </InputGroup.Prepend>
-                  <FormControl />
+                  <FormControl
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
                 </InputGroup>
               </div>
             </form>
@@ -61,22 +76,29 @@ const App = () => {
           <Col xs={12} md={6}>
             <Card>
               <Card.Title className="my-3 mx-4">
-                {`Results from  "${result}"`}
+                {error ? `No results found for  "${title}"` : `Top Results`}
               </Card.Title>
 
               <ListGroup variant="flush" className="">
-                {list.map((li, i) => (
-                  <ListGroup.Item key={i} className="list-item">
-                    <Row>
-                      <Col xs={12} lg={9}>
-                        <p> {li}</p>
-                      </Col>
-                      <Col xs={12} lg={3}>
-                        <button className="nom-btn">Nominate</button>
-                      </Col>
-                    </Row>
-                  </ListGroup.Item>
-                ))}
+                {movies
+                  ? movies.map((movie, i) => (
+                      <ListGroup.Item key={movie.imdbID} className="list-item">
+                        <Row>
+                          <Col xs={12} lg={9}>
+                            <p> {movie.Title}</p>
+                          </Col>
+                          <Col xs={12} lg={3}>
+                            <button
+                              className="nom-btn"
+                              onClick={() => onNominate(movie, movie.imdbID)}
+                            >
+                              Nominate
+                            </button>
+                          </Col>
+                        </Row>
+                      </ListGroup.Item>
+                    ))
+                  : null}
               </ListGroup>
             </Card>
           </Col>
@@ -85,18 +107,20 @@ const App = () => {
               <Card.Title className="my-3 mx-4">Nominations</Card.Title>
 
               <ListGroup variant="flush" className="">
-                {nom.map((li, i) => (
-                  <ListGroup.Item key={i} className="list-item">
-                    <Row>
-                      <Col xs={12} lg={9}>
-                        <p> {li}</p>
-                      </Col>
-                      <Col xs={12} lg={3}>
-                        <button className="rem-btn">Remove</button>
-                      </Col>
-                    </Row>
-                  </ListGroup.Item>
-                ))}
+                {nominations.length > 0
+                  ? nominations.map((movie) => (
+                      <ListGroup.Item key={movie.imdbID} className="list-item">
+                        <Row>
+                          <Col xs={12} lg={9}>
+                            <p> {movie.Title}</p>
+                          </Col>
+                          <Col xs={12} lg={3}>
+                            <button className="rem-btn">Remove</button>
+                          </Col>
+                        </Row>
+                      </ListGroup.Item>
+                    ))
+                  : null}
               </ListGroup>
             </Card>
           </Col>
