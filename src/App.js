@@ -269,7 +269,7 @@ const App = () => {
                                 </Col>
                               </>
                             )}
-                            <Col xs={12} lg={3}>
+                            <Col xs={12} lg={3} className="pt-3 pt-lg-0">
                               <button
                                 className="rem-btn"
                                 onClick={() => onRemoveNominee(movie.imdbID)}
