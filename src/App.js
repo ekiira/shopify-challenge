@@ -2,23 +2,24 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 
 import search from "./assets/search.svg";
+
 import Card from "react-bootstrap/Card";
-import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
 import ListGroup from "react-bootstrap/ListGroup";
 import Alert from "react-bootstrap/Alert";
-import { Fade } from "react-bootstrap";
+
+import { setNominees, getNominees } from "./utlis/nominees";
 
 const App = () => {
   const key = "26a7e327";
   const [title, setTitle] = useState("");
   const [movies, setMovies] = useState(null);
   const [error, setError] = useState(false);
-  const [nominations, setNominations] = useState([]);
   const [checkNominated, setCheckNominated] = useState([]);
+  let nominees = getNominees();
 
   useEffect(() => {
     const getMovies = async () => {
@@ -41,13 +42,17 @@ const App = () => {
   }, [title]);
 
   const onNominate = (movie, id) => {
-    if (nominations.length > 4) {
+    if (nominees && nominees.length > 4) {
       setShowError(true);
       setTimeout(() => {
         setShowError(false);
       }, 5000);
     } else {
-      setNominations([...nominations, movie]);
+      if (!nominees) {
+        nominees = [];
+      }
+      nominees.push(movie);
+      setNominees(nominees);
       if (movie.imdbID === id) {
         const obj = {
           isNominated: true,
@@ -56,7 +61,7 @@ const App = () => {
         setCheckNominated([...checkNominated, obj]);
       }
     }
-    if (nominations.length === 4) {
+    if (nominees && nominees.length === 5) {
       setShowWarning(true);
       setTimeout(() => {
         setShowWarning(false);
@@ -65,9 +70,8 @@ const App = () => {
   };
 
   const onRemoveNominee = (id) => {
-    const newNominations = [...nominations.filter((val) => val.imdbID !== id)];
-    setNominations(newNominations);
-
+    const newNominations = [...nominees.filter((val) => val.imdbID !== id)];
+    setNominees(newNominations);
     const newbtn = [...checkNominated.filter((val) => val.id !== id)];
     setCheckNominated(newbtn);
   };
@@ -82,7 +86,6 @@ const App = () => {
           dismissible
           onClose={() => setShowWarning(false)}
           className="text-center font-weight-bold nominee-alert"
-          transition={Fade}
         >
           Yay! You have made five nominations
         </Alert>
@@ -90,42 +93,48 @@ const App = () => {
 
       {showError ? (
         <Alert
-        variant="danger"
-        dismissible
-        onClose={() => setShowError(false)}
-        className="text-center font-weight-bold nominee-alert"
-      >
-        Sorry, You can only select five nominees
-      </Alert>
+          variant="danger"
+          dismissible
+          onClose={() => setShowError(false)}
+          className="text-center font-weight-bold nominee-alert"
+        >
+          Sorry, You can only select five nominees
+        </Alert>
       ) : null}
       <div className="appWrapper">
-        <Container className="">
-          <div className="logo py-5">
+        <div className="container">
+          <div className="logo pt-5 pb-3">
             <h1 className="text-center logo-text">
               The Shoppies<span className="logo-img">.</span>
             </h1>
           </div>
+          <h3 className="text-center">
+            Movie awards for entrepreneurs
+            <span className="logo-img">.</span>
+          </h3>
+
+          <p className="mt-3">
+            Search for your favourite movies and nominate them.
+            <br />
+            <span className="note">NOTE: You can only nominate 5 movies</span>
+          </p>
           <Card>
             <Card.Body>
-              <form>
-                <div>
-                  <InputGroup>
-                    <InputGroup.Prepend>
-                      <InputGroup.Text>
-                        <img
-                          src={search}
-                          alt="search-icon"
-                          className="searchIcon"
-                        />
-                      </InputGroup.Text>
-                    </InputGroup.Prepend>
-                    <FormControl
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+              <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Text>
+                    <img
+                      src={search}
+                      alt="search-icon"
+                      className="searchIcon"
                     />
-                  </InputGroup>
-                </div>
-              </form>
+                  </InputGroup.Text>
+                </InputGroup.Prepend>
+                <FormControl
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </InputGroup>
             </Card.Body>
           </Card>
           <Row className="mt-5 pb-5">
@@ -135,50 +144,56 @@ const App = () => {
                   {error ? `No results found for  "${title}"` : `Top Results`}
                 </Card.Title>
 
-                <ListGroup variant="flush" className="">
-                  {movies
-                    ? movies.map((movie, i) => (
-                        <ListGroup.Item
-                          key={movie.imdbID}
-                          className="list-item"
-                        >
-                          <Row>
-                            <Col xs={12} lg={9}>
-                              <p> {movie.Title}</p>
-                            </Col>
-                            <Col xs={12} lg={3}>
-                              {checkNominated.length > 0 ? (
-                                checkNominated.filter(
-                                  (check) => check.id === movie.imdbID
-                                ).length === 1 ? (
-                                  <button className="nom-btn-disabled">
-                                    Nominated
-                                  </button>
-                                ) : (
-                                  <button
-                                    className="nom-btn"
-                                    onClick={(e) =>
-                                      onNominate(movie, movie.imdbID, e)
-                                    }
-                                  >
-                                    Nominate
-                                  </button>
-                                )
+                <ListGroup variant="flush" className="movieList">
+                  {movies ? (
+                    movies.map((movie, i) => (
+                      <ListGroup.Item key={movie.imdbID} className="list-item">
+                        <Row>
+                          <Col xs={12} lg={8}>
+                            <p className="font-weight-bold">
+                              {" "}
+                              {movie.Title}
+                              <br />
+                              <span className="font-weight-light">
+                                {movie.Year}
+                              </span>
+                            </p>
+                          </Col>
+                          <Col xs={12} lg={4}>
+                            {checkNominated.length > 0 ? (
+                              checkNominated.filter(
+                                (check) => check.id === movie.imdbID
+                              ).length === 1 ? (
+                                <button className="nom-btn-disabled">
+                                  Nominated
+                                </button>
                               ) : (
                                 <button
                                   className="nom-btn"
-                                  onClick={() =>
-                                    onNominate(movie, movie.imdbID)
+                                  onClick={(e) =>
+                                    onNominate(movie, movie.imdbID, e)
                                   }
                                 >
                                   Nominate
                                 </button>
-                              )}
-                            </Col>
-                          </Row>
-                        </ListGroup.Item>
-                      ))
-                    : null}
+                              )
+                            ) : (
+                              <button
+                                className="nom-btn"
+                                onClick={() => onNominate(movie, movie.imdbID)}
+                              >
+                                Nominate
+                              </button>
+                            )}
+                          </Col>
+                        </Row>
+                      </ListGroup.Item>
+                    ))
+                  ) : (
+                    <p className="d-flex align-items-center justify-content-center h-100">
+                      No Movies Yet
+                    </p>
+                  )}
                 </ListGroup>
               </Card>
             </Col>
@@ -187,33 +202,42 @@ const App = () => {
                 <Card.Title className="my-3 mx-4">Nominations</Card.Title>
 
                 <ListGroup variant="flush" className="">
-                  {nominations.length > 0
-                    ? nominations.map((movie) => (
-                        <ListGroup.Item
-                          key={movie.imdbID}
-                          className="list-item"
-                        >
-                          <Row>
-                            <Col xs={12} lg={9}>
-                              <p> {movie.Title}</p>
-                            </Col>
-                            <Col xs={12} lg={3}>
-                              <button
-                                className="rem-btn"
-                                onClick={() => onRemoveNominee(movie.imdbID)}
-                              >
-                                Remove
-                              </button>
-                            </Col>
-                          </Row>
-                        </ListGroup.Item>
-                      ))
+                  {nominees
+                    ? nominees.length > 0
+                      ? nominees.map((movie) => (
+                          <ListGroup.Item
+                            key={movie.imdbID}
+                            className="list-item"
+                          >
+                            <Row>
+                              <Col xs={12} lg={9}>
+                                <p className="font-weight-bold">
+                                  {" "}
+                                  {movie.Title}
+                                  <br />
+                                  <span className="font-weight-light">
+                                    {movie.Year}
+                                  </span>
+                                </p>
+                              </Col>
+                              <Col xs={12} lg={3}>
+                                <button
+                                  className="rem-btn"
+                                  onClick={() => onRemoveNominee(movie.imdbID)}
+                                >
+                                  Remove
+                                </button>
+                              </Col>
+                            </Row>
+                          </ListGroup.Item>
+                        ))
+                      : null
                     : null}
                 </ListGroup>
               </Card>
             </Col>
           </Row>
-        </Container>
+        </div>
       </div>
     </>
   );
