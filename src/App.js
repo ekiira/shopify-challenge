@@ -10,8 +10,9 @@ import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
 import ListGroup from "react-bootstrap/ListGroup";
 import Alert from "react-bootstrap/Alert";
+import Container from "react-bootstrap/Container";
 
-import { setNominees, getNominees } from "./utlis/nominees";
+import { setNominees, getNominees, debounce } from "./utlis/utils";
 
 const App = () => {
   const key = "26a7e327";
@@ -38,7 +39,7 @@ const App = () => {
       }
     };
 
-    getMovies();
+    debounce(getMovies());
   }, [title]);
 
   const onNominate = (movie, id) => {
@@ -102,7 +103,7 @@ const App = () => {
         </Alert>
       ) : null}
       <div className="appWrapper">
-        <div className="container">
+        <Container>
           <div className="logo pt-5 pb-3">
             <h1 className="text-center logo-text">
               The Shoppies<span className="logo-img">.</span>
@@ -149,17 +150,41 @@ const App = () => {
                     movies.map((movie, i) => (
                       <ListGroup.Item key={movie.imdbID} className="list-item">
                         <Row>
-                          <Col xs={12} lg={8}>
-                            <p className="font-weight-bold">
-                              {" "}
-                              {movie.Title}
-                              <br />
-                              <span className="font-weight-light">
-                                {movie.Year}
-                              </span>
-                            </p>
-                          </Col>
-                          <Col xs={12} lg={4}>
+                          {movie.Poster === "N/A" ? (
+                            <>
+                              <Col xs={12} lg={8}>
+                                <p className="font-weight-bold">
+                                  {" "}
+                                  {movie.Title}
+                                  <br />
+                                  <span className="font-weight-light">
+                                    {movie.Year}
+                                  </span>
+                                </p>
+                              </Col>
+                            </>
+                          ) : (
+                            <>
+                              <Col xs={4} lg={2}>
+                                <img
+                                  src={movie.Poster}
+                                  className="movie-poster"
+                                  alt="Movie Poster"
+                                />
+                              </Col>
+                              <Col xs={8} lg={6}>
+                                <p className="font-weight-bold">
+                                  {" "}
+                                  {movie.Title}
+                                  <br />
+                                  <span className="font-weight-light">
+                                    {movie.Year}
+                                  </span>
+                                </p>
+                              </Col>
+                            </>
+                          )}
+                          <Col xs={12} lg={4} className="pt-3 pt-lg-0">
                             {checkNominated.length > 0 ? (
                               checkNominated.filter(
                                 (check) => check.id === movie.imdbID
@@ -201,43 +226,75 @@ const App = () => {
               <Card>
                 <Card.Title className="my-3 mx-4">Nominations</Card.Title>
 
-                <ListGroup variant="flush" className="">
-                  {nominees
-                    ? nominees.length > 0
-                      ? nominees.map((movie) => (
-                          <ListGroup.Item
-                            key={movie.imdbID}
-                            className="list-item"
-                          >
-                            <Row>
-                              <Col xs={12} lg={9}>
-                                <p className="font-weight-bold">
-                                  {" "}
-                                  {movie.Title}
-                                  <br />
-                                  <span className="font-weight-light">
-                                    {movie.Year}
-                                  </span>
-                                </p>
-                              </Col>
-                              <Col xs={12} lg={3}>
-                                <button
-                                  className="rem-btn"
-                                  onClick={() => onRemoveNominee(movie.imdbID)}
-                                >
-                                  Remove
-                                </button>
-                              </Col>
-                            </Row>
-                          </ListGroup.Item>
-                        ))
-                      : null
-                    : null}
+                <ListGroup variant="flush" className="movieList">
+                  {nominees ? (
+                    nominees.length > 0 ? (
+                      nominees.map((movie) => (
+                        <ListGroup.Item
+                          key={movie.imdbID}
+                          className="list-item"
+                        >
+                          <Row>
+                            {movie.Poster === "N/A" ? (
+                              <>
+                                <Col xs={12} lg={8}>
+                                  <p className="font-weight-bold">
+                                    {" "}
+                                    {movie.Title}
+                                    <br />
+                                    <span className="font-weight-light">
+                                      {movie.Year}
+                                    </span>
+                                  </p>
+                                </Col>
+                              </>
+                            ) : (
+                              <>
+                                <Col xs={4} lg={2}>
+                                  <img
+                                    src={movie.Poster}
+                                    className="movie-poster"
+                                    alt="Movie Poster"
+                                  />
+                                </Col>
+                                <Col xs={8} lg={6}>
+                                  <p className="font-weight-bold">
+                                    {" "}
+                                    {movie.Title}
+                                    <br />
+                                    <span className="font-weight-light">
+                                      {movie.Year}
+                                    </span>
+                                  </p>
+                                </Col>
+                              </>
+                            )}
+                            <Col xs={12} lg={3}>
+                              <button
+                                className="rem-btn"
+                                onClick={() => onRemoveNominee(movie.imdbID)}
+                              >
+                                Remove
+                              </button>
+                            </Col>
+                          </Row>
+                        </ListGroup.Item>
+                      ))
+                    ) : (
+                      <p className="d-flex align-items-center justify-content-center h-100">
+                        No Nominees Yet
+                      </p>
+                    )
+                  ) : (
+                    <p className="d-flex align-items-center justify-content-center h-100">
+                      No Nominees Yet
+                    </p>
+                  )}
                 </ListGroup>
               </Card>
             </Col>
           </Row>
-        </div>
+        </Container>
       </div>
     </>
   );
