@@ -94,3 +94,9 @@
   border-color: #b21f2d;
   outline: #b21f2d;
 }
+
+.nominee-alert {
+  position: fixed;
+  width: 100%;
+  z-index: 100;
+}
